@@ -1,0 +1,82 @@
+#app {
+  max-width:  1024px;
+  margin: 0 auto;
+}
+
+.md-table-cell,
+.md-table-head {
+  text-align: left;
+}
+
+.name-cell .md-table-cell-container,
+.employee-name-cell .md-table-cell-container,
+.time-cell .md-table-cell-container,
+.cost-cell .md-table-cell-container,
+.actions-cell .md-table-cell-container {
+  text-align: left;
+}
+
+.md-table-head-container,
+.md-table-cell-container {
+  text-align: left;
+}
+
+.employee-name-cell {
+  width: 180px;
+}
+
+.time-cell {
+  width: 240px;
+}
+
+.cost-cell {
+  width: 180px;
+}
+
+.actions-cell {
+  width: 180px;
+}
+
+.create-action {
+  margin: 0 20px 0 0;
+}
+
+.md-table-cell__employee .md-error {
+  color: #ff1744;
+}
+
+.md-table-cell__actions span {
+  margin: 0 5px;
+}
+
+.md-table-content {
+  min-height: 48px;
+}
+
+.main-table .md-table-content {
+  min-height: 640px;
+  min-width: 640px;
+}
+
+.md-dialog {
+  max-width: 768px;
+}
+
+.md-dialog-container .md-field {
+  margin-left: 25px;
+  margin-right: 25px;
+  width: auto;
+}
+
+.md-select-menu {
+  z-index: 10;
+}
+
+.md-field.md-theme-default.md-disabled:after {
+  background: none;
+  background-image: none;
+}
+
+.md-content-footer {
+  padding: 20px; 
+}

@@ -1,0 +1,183 @@
+<html>
+  <head>
+    <title>Vue.js test task</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css">
+    <link rel="stylesheet" href="./index.css">
+  </head>
+  <body>
+    <div id="app">
+
+      <md-table
+        class="main-table"
+        v-model="searched"
+        md-sort="name"
+        md-sort-order="asc"
+        md-card
+        md-fixed-header
+      >
+        <md-table-toolbar>
+          <div class="md-toolbar-section-start">
+            <h1 class="md-title">Работа</h1>
+          </div>
+
+          <md-button class="md-icon-button md-raised md-primary create-action" @click="create">
+            <md-icon>add</md-icon>
+          </md-button>
+
+          <md-field md-clearable class="md-toolbar-section-end">
+            <md-input placeholder="Фильтр по названию и имени" v-model="search" @input="searchOnTable"/>
+          </md-field>
+        </md-table-toolbar>
+
+        <md-table-row slot="md-table-row" slot-scope="{ item }">
+          <md-table-cell
+            md-label="Название"
+            md-sort-by="name"
+            class="name-cell"
+          >
+            <md-field :class="{'md-invalid': !item.name}">
+              <md-input v-model="item.name" :disabled="!item.isEditable" required/>
+              <span class="md-error">Field is required</span>
+            </md-field>
+          </md-table-cell>
+          <md-table-cell
+            md-label="Исполнитель"
+            md-sort-by="employeeName"
+            class="employee-name-cell"
+          >
+            <span
+              class="md-table-cell__employee"
+              v-on:click="employeeDialogOpen(item)"
+            >
+              <md-icon v-show="item.isEditable">edit</md-icon>
+              {{ item.employeeName ? item.employeeName : null }}
+              <div class="md-error" v-show="!item.employeeName">
+                Field is required
+              </div>
+            </span>
+            
+          </md-table-cell>
+          <md-table-cell
+            md-label="Затраченное время в часах"
+            md-numeric
+            class="time-cell"
+          >
+            <md-field :class="{'md-invalid': !item.time}">
+              <md-input
+                type="number"
+                v-model="item.time"
+                :disabled="!item.isEditable"
+                required
+              />
+              <span class="md-error">Field is required</span>
+            </md-field>
+          </md-table-cell>
+          <md-table-cell
+            md-label="Стоимость работы"
+            md-numeric
+            class="cost-cell"
+          >
+            {{ item.employee && item.employee.price ? (+item.time) * (+item.employee.price) : 0 }}
+          </md-table-cell>
+          <md-table-cell md-label="Действия" class="actions-cell">
+            <span class="md-table-cell__actions" v-show="!item.isEditable">
+              <span v-on:click="update(item)">
+                <md-icon>edit</md-icon>
+              </span>
+              <span v-on:click="deleteConfirmationOpen(item)">
+                <md-icon>delete</md-icon>
+              </span>
+            </span>
+            <span class="md-table-cell__actions" v-show="!!item.isEditable">
+              <span v-on:click="cancel(item)">
+                <md-icon>cancel</md-icon>
+              </span>
+              <span v-on:click="save(item)">
+                <md-icon>check_circle</md-icon>
+              </span>
+            </span>
+          </md-table-cell>
+        </md-table-row>
+        
+      </md-table>
+
+      <md-table md-card>
+        <md-table-row>
+          <md-table-cell class="name-cell">Итого </md-table-cell>
+          <md-table-cell class="employee-name-cell">работ: {{ summary.jobs }}</md-table-cell>
+          <md-table-cell class="time-cell">времени: {{ summary.time }}</md-table-cell>
+          <md-table-cell class="cost-cell">стоимость: {{ summary.cost }}</md-table-cell>
+          <md-table-cell class="actions-cell"></md-table-cell>
+        </md-table-row>
+      </md-table>
+
+      <div class="md-content-footer">
+        <md-button
+          class="md-raised md-primary"
+          :disabled="!isTouched"
+          @click="sendToServer"
+        >
+          Отправить на сервер
+        </md-button>
+
+        <p v-show="serverData">
+          <span>Данные, которые пойдут на сервер:</span>
+          <br>
+          <pre>{{ serverData }}</pre>
+        </p>
+      </div>
+
+      <md-dialog :md-active.sync="isEmployeeDialogActive">
+        <md-dialog-title></md-dialog-title>
+
+        <md-field>
+          <label>Choose Employee</label>
+          <md-select v-model="employeeId" name="employee" id="employee">
+            <md-option
+              v-for="employee in employees"
+              :key="employee.id"
+              :value="employee.id"
+            >
+              {{ employee.name }}  
+            </md-option>
+          </md-select>
+        </md-field>
+
+        <md-dialog-actions>
+          <md-button
+            class="md-primary"
+            @click="onEmployeeDialogCancel"
+          >
+            Отмена
+          </md-button>
+          <md-button
+            class="md-primary"
+            @click="onEmployeeDialogSuccess"
+          >
+            Выбрать
+          </md-button>
+        </md-dialog-actions>
+      </md-dialog>
+
+      <md-dialog-confirm
+        :md-active.sync="isDeleteConfirmationActive"
+        md-title="Подтверждение"
+        md-content="Вы действительно хотите удалить эту работу?"
+        md-confirm-text="Да"
+        md-cancel-text="Отмена"
+        @md-cancel="onDeleteConfirmationCancel"
+        @md-confirm="onDeleteConfirmationSuccess"
+      />
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.8/uuid.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-material@1.0.0-beta-7/dist/vue-material.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>
